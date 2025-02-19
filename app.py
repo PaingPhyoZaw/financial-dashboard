@@ -281,7 +281,8 @@ def main():
     # 1.Care Dashboard Section
     elif choice == "1.Care Dashboard":
         st.title("📊 1.Care Dashboard")
-        # ... (Your existing 1.Care code remains unchanged) ...
+        st.write("Content or metrics related to 1.Care go here.")
+        # ... (Your existing Care+ code remains unchanged) ...
         
     # Care+ Dashboard Section
     else:

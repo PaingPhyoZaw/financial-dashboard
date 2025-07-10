@@ -36,7 +36,7 @@ def get_status_analysis(data):
 
 def main():
     st.set_page_config(layout="wide")
-    st.title("📊 Xiaomi Service Center Dashboard")
+    st.title("📊 Xiaomi Job Analysis Dashboard")
 
     uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx", "xls"])
     

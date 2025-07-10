@@ -4,6 +4,24 @@ from datetime import datetime
 import plotly.express as px
 from io import BytesIO
 
+# Set page config with Xiaomi logo as icon
+st.set_page_config(
+    page_title="Xiaomi Job Analysis Dashboard",
+    page_icon="https://1000logos.net/wp-content/uploads/2021/08/Xiaomi-logo.jpg",
+    layout="wide"
+)
+
+# Add custom meta tags for social sharing
+st.markdown("""
+    <meta property="og:title" content="Xiaomi Job Analysis Dashboard">
+    <meta property="og:description" content="Interactive dashboard for Xiaomi Job Analysis Dashboard">
+    <meta property="og:image" content="https://1000logos.net/wp-content/uploads/2021/08/Xiaomi-logo.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Xiaomi Job Analysis Dashboard">
+    <meta name="twitter:description" content="Interactive dashboard for Xiaomi Job Analysis Dashboard">
+    <meta name="twitter:image" content="https://1000logos.net/wp-content/uploads/2021/08/Xiaomi-logo.jpg">
+""", unsafe_allow_html=True)
+
 # Define main service centers
 main_centers = ['MM-1.Care-MSC-Yangon-Hledan', 'MM-1.Care-MSC-Mandalay-35street', 'MM-1.Care-MSC-MawLaMyine']
 

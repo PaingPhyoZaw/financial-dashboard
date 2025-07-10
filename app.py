@@ -39,9 +39,77 @@ def main():
         with st.expander("Preview of the uploaded data", expanded=False):
             st.dataframe(df)
 
+        # Add Service Center Summary Section
+        st.subheader("📋 Service Center Summary")
+        
+        # Get all service centers and their job counts
+        center_counts = df['服务网点'].value_counts().reset_index()
+        center_counts.columns = ['Service Center', 'Total Jobs']
+        total_jobs = len(df)
+        
+        # Separate main centers and other centers
+        main_centers_data = center_counts[center_counts['Service Center'].isin(main_centers)]
+        other_centers_data = center_counts[~center_counts['Service Center'].isin(main_centers)]
+        other_centers_total = other_centers_data['Total Jobs'].sum()
+        
+        # Create columns for the summary cards
+        cols = st.columns(5)
+        
+        # Total Jobs card
+        with cols[0]:
+            st.metric(label="📦 Total Jobs", value=total_jobs)
+        
+        # Main centers cards
+        for i in range(min(3, len(main_centers_data))):
+            with cols[i+1]:
+                center_name = main_centers_data.iloc[i]['Service Center']
+                count = main_centers_data.iloc[i]['Total Jobs']
+                percentage = (count / total_jobs * 100)
+                st.metric(
+                    label=f"🏢 {center_name}{'...' if len(center_name)>15 else ''}",
+                    value=count,
+                    delta=f"{percentage:.1f}% of total"
+                )
+        
+        # Other centers card
+        with cols[4]:
+            percentage = (other_centers_total / total_jobs * 100)
+            st.metric(
+                label="🏢 Other Centers",
+                value=other_centers_total,
+                delta=f"{percentage:.1f}% of total"
+            )
+        
+        # Show full center distribution in an expander
+        with st.expander("View All Service Centers", expanded=False):
+            # Combine all centers with type indicator
+            main_centers_data['Type'] = 'Main Center'
+            other_centers_data['Type'] = 'Other Center'
+            all_centers = pd.concat([main_centers_data, other_centers_data])
+            
+            # Add percentage column
+            all_centers['Percentage'] = (all_centers['Total Jobs'] / total_jobs * 100).round(1)
+            all_centers['Percentage'] = all_centers['Percentage'].astype(str) + '%'
+            
+            # Sort by job count
+            all_centers = all_centers.sort_values('Total Jobs', ascending=False)
+            
+            # Display with nice formatting
+            st.dataframe(
+                all_centers,
+                column_config={
+                    "Service Center": st.column_config.TextColumn("Service Center"),
+                    "Total Jobs": st.column_config.NumberColumn("Total Jobs"),
+                    "Percentage": st.column_config.TextColumn("Percentage"),
+                    "Type": st.column_config.TextColumn("Center Type")
+                },
+                use_container_width=True
+            )
+
+        # Rest of your existing code...
         col1, col2, col3 = st.columns([1, 1, 1])
         with col1:
-            st.subheader('Repairs by Pending Duration')
+            st.subheader('⏳ Repairs by Pending Duration')
 
         with col2:    
             # Add warranty status filter
@@ -99,7 +167,6 @@ def main():
                 
                 if selected_duration:
                     duration_jobs = filtered_df[filtered_df['Duration_Bracket'] == selected_duration]
-                    # st.write(f"Jobs in {selected_duration} days range ({len(duration_jobs)} jobs):")
                     st.dataframe(duration_jobs[['Service Order Number', 'Creation Time', 'Service Order Status', 'Engineer', '保内/保外', 'Picking Parts Status', 'Service Type']])
         
         # Analyze main centers with filtered data
@@ -120,14 +187,13 @@ def main():
                         
                         if center_selected_duration:
                             center_duration_jobs = center_data[center_data['Duration_Bracket'] == center_selected_duration]
-                            # st.write(f"{center} jobs in {center_selected_duration} days range ({len(center_duration_jobs)} jobs):")
                             st.dataframe(center_duration_jobs[['Service Order Number', 'Creation Time', 'Service Order Status', 'Engineer', '保内/保外', 'Picking Parts Status', 'Service Type']])
 
         # Analyze other centers with filtered data
         other_centers_data = filtered_df[~filtered_df['服务网点'].isin(main_centers)]
         if len(other_centers_data) > 0:
             with col2:
-                with st.expander('Other Centers', expanded=True):
+                with st.expander('Other Centers', expanded=False):
                     other_centers_analysis = get_center_duration_analysis(other_centers_data)
                     st.table(other_centers_analysis)
                     
@@ -140,8 +206,7 @@ def main():
                     
                     if other_selected_duration:
                         other_duration_jobs = other_centers_data[other_centers_data['Duration_Bracket'] == other_selected_duration]
-                        # st.write(f"Other Centers jobs in {other_selected_duration} days range ({len(other_duration_jobs)} jobs):")
-                        st.dataframe(other_duration_jobs[['Service Order Number', 'Creation Time', 'Service Order Status', 'Engineer', '保内/保外', 'Picking Parts Status', 'Service Type']])
+                        st.dataframe(other_duration_jobs[['Service Order Number', 'Creation Time','服务网点', 'Service Order Status', 'Engineer', '保内/保外', 'Picking Parts Status', 'Service Type']])
 
 if __name__ == "__main__":
     main()

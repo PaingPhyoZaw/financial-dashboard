@@ -118,14 +118,24 @@ def main():
 
         # ========== FILTER SECTION ==========
         st.subheader("🔧 Filters")
-        col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
+        col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
         
-        with col1:    
+        with col1:
+            # Add center filter
+            center_options = ['All'] + sorted(df['服务网点'].unique().tolist())
+            selected_center = st.selectbox("Service Center", center_options)
+
+        with col2:
+            # Add service order status filter with dynamic options
+            service_status_options = ['All'] + sorted(df['Service Order Status'].dropna().unique().tolist())
+            selected_service_status = st.selectbox("Service Order Status", service_status_options)
+
+        with col3:    
             # Add warranty status filter
             warranty_options = ['All', 'IW', 'OOW']
             selected_warranty = st.selectbox("Warranty Status", warranty_options)
             
-        with col2:
+        with col4:
             # Add service type filter with dynamic options
             if selected_warranty == 'OOW':
                 service_options = ['All', 'Repair']
@@ -133,28 +143,26 @@ def main():
                 service_options = ['All', 'Repair', 'Inspection']
             
             selected_service = st.selectbox("Service Type", service_options)
-            
-        with col3:
-            # Add center filter
-            center_options = ['All'] + sorted(df['服务网点'].unique().tolist())
-            selected_center = st.selectbox("Service Center", center_options)
 
-        with col4:
+        with col5:
             # Add Picking Parts Status filter
             parts_status_options = ['All'] + sorted(df['Picking Parts Status'].dropna().unique().tolist())
             selected_parts_status = st.selectbox("Picking Parts Status", parts_status_options)
             
         # Filter data based on selections
         filtered_df = df.copy()
+            
+        if selected_center != 'All':
+            filtered_df = filtered_df[filtered_df['服务网点'] == selected_center]
         
         if selected_warranty != 'All':
             filtered_df = filtered_df[filtered_df['保内/保外'] == selected_warranty]
             
         if selected_service != 'All':
             filtered_df = filtered_df[filtered_df['Service Type'] == selected_service]
-            
-        if selected_center != 'All':
-            filtered_df = filtered_df[filtered_df['服务网点'] == selected_center]
+
+        if selected_service_status != 'All':
+            filtered_df = filtered_df[filtered_df['Service Order Status'] == selected_service_status]
 
         if selected_parts_status != 'All':
             filtered_df = filtered_df[filtered_df['Picking Parts Status'] == selected_parts_status]
